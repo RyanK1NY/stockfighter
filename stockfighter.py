@@ -6,35 +6,51 @@ api_key = ""
 
 #On level page
 account = ""
-venue = "VWTEX"
-stock = "CUUM"
-
-
+stock = "HMC"
+venue = "YKIEX"
 API_HOST = "https://api.stockfighter.io/ob/api"
 
-#Quotes Url
-#url = API_HOST + "/venues/" + venue + "/stocks/" + stock + "/quote"
+class Trader:
+    def __init__(self, api_key, account, stock, venue):
+        self.api_key = api_key
+        self.account = account
+        self.stock = stock
+        self.venue = venue
+    
+    def quote(self):
+        url = API_HOST + "/venues/" + self.venue + "/stocks/" + self.stock + "/quote"
+        r = requests.get(url)
+        self.save_results(r.text)
+        print("Quote successful")
+    
+    def buy(self, price, quantity, order_type):
+        price = int(price)
+        quantity = int(quantity)
+        url = API_HOST + "/venues/" + self.venue + "/stocks/" + self.stock + "/orders"
+        headers = {"X-Starfighter-Authorization" : self.api_key}
+        order = {
+            "account" : self.account,
+            "venue" : self.venue,
+            "symbol" : self.stock,
+            "price" : price,  #25000 = $250.00 -- probably ludicrously high
+            "qty" : quantity,
+            "direction" : "buy",
+            "orderType" : order_type  # See the order docs for what a limit order is
+        }
+        
+        order = json.JSONEncoder().encode(order)
+        r = requests.post(url, headers = headers, data = order)
+        self.save_results(r.text)
+        print(r.text)
+        print ("Buy order successful")
+        
+    
+    def save_results(self, data):
+        f = open('stock_results.json', 'w')
+        f.write(str(data))
+        f.close()
+        
 
-#Orders Url
-url = API_HOST + "/venues/" + venue + "/stocks/" + stock + "/orders"
-
-headers = {"X-Starfighter-Authorization" : api_key}
-
-order = {
-    "account" : account,
-    "venue" : venue,
-    "symbol" : stock,
-    "price" : 4000,  #$40.00 -- probably ludicrously high
-    "qty" : 100,
-    "direction" : "buy",
-    "orderType" : "market"  # See the order docs for what a limit order is
-}
-
-order = json.JSONEncoder().encode(order)
-
-r = requests.post(url, headers = headers, data = order)
-print (r.text)
-#f = open('stock_results.json', 'w')
-#f.write(str(r.json()))
-#f.close()
-#print (r.json())
+trader = Trader(api_key, account, stock, venue)
+#trader.quote()
+trader.buy(50, 100, "market")
