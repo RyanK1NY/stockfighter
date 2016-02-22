@@ -16,7 +16,27 @@ class Trader:
         self.account = account
         self.stock = stock
         self.venue = venue
+        
+    def heartbeat(self):
+        url = API_HOST + "/heartbeat"
+        r = requests.get(url)
+        print(r.text)
     
+    def check_venue(self):
+        url = API_HOST + "/venues/" + self.venue +"/heartbeat"
+        r = requests.get(url)
+        print(r.text)
+    
+    def stocks_in_venue(self):
+        url = API_HOST + "/venues/" + self.venue + "/stocks"
+        r = requests.get(url)
+        print(r.text)
+  
+    def orderbook(self):
+        url = API_HOST + "/venues/" + self.venue + "/stocks/" + self.stock
+        r = requests.get(url)
+        print(r.text)
+        
     def quote(self):
         url = API_HOST + "/venues/" + self.venue + "/stocks/" + self.stock + "/quote"
         r = requests.get(url)
@@ -52,5 +72,6 @@ class Trader:
         
 
 trader = Trader(api_key, account, stock, venue)
+trader.orderbook()
 #trader.quote()
-trader.buy(50, 100, "market")
+#trader.buy(50, 100, "market")
