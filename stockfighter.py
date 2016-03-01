@@ -28,12 +28,12 @@ class Trader:
     def orderbook(self):
         url = API_HOST + "/venues/" + self.venue + "/stocks/" + self.stock
         r = requests.get(url)
+        self.save_results(r.text)
         print(r.text)
         
     def quote(self):
         url = API_HOST + "/venues/" + self.venue + "/stocks/" + self.stock + "/quote"
         r = requests.get(url)
-        self.save_results(r.text)
         print(r.text)
     
     def buy(self, price, quantity, order_type):
@@ -52,16 +52,13 @@ class Trader:
         }
         order = json.JSONEncoder().encode(order)
         r = requests.post(url, headers = headers, data = order)
-        self.save_results(r.text)
         print(r.text)
-        print ("Buy order successful")
         
     def order_status(self, order_id = ""):
         order_id = str(order_id)
         url = API_HOST + "/venues/" + self.venue + "/stocks/" + self.stock + "/orders/" + order_id
         headers = {"X-Starfighter-Authorization" : self.api_key}
         r = requests.get(url, headers = headers)
-        self.save_results(r.text)
         print(r.text)
         
     def all_orders(self):
@@ -76,30 +73,8 @@ class Trader:
         url = API_HOST + "/venues/" + self.venue + "/stocks/" + self.stock + "/orders/" + order_id
         r = requests.delete(url)
         print ("Order deleted")
-            
-            
-            
+                    
     def save_results(self, data):
         f = open('stock_results.json', 'w')
         f.write(str(data))
         f.close()
-        
-#https://www.stockfighter.io/ui/api_keys
-f = open('stockfighter_api.txt')
-api_key = f.read()
-
-#On level page
-account = "GBR15244395"
-
-test = None
-stock = "SFCM"
-venue = "EXFEX"
-
-if test:
-    stock = "FOOBAR"
-    venue = "TESTEX"
-
-trader = Trader(api_key, account, stock, venue)
-trader.quote()
-
-trader.buy(30, 1000, "fill-or-kill")
